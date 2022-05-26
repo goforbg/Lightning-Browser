@@ -4,6 +4,7 @@ import acr.browser.lightning.BuildConfig
 import acr.browser.lightning.R
 import acr.browser.lightning.adblock.AdBlocker
 import acr.browser.lightning.adblock.allowlist.AllowListModel
+import acr.browser.lightning.block_list_urls
 import acr.browser.lightning.constant.FILE
 import acr.browser.lightning.controller.UIController
 import acr.browser.lightning.di.injector
@@ -28,6 +29,7 @@ import android.net.MailTo
 import android.net.http.SslError
 import android.os.Build
 import android.os.Message
+import android.util.Log
 import android.view.LayoutInflater
 import android.webkit.*
 import android.widget.CheckBox
@@ -263,6 +265,16 @@ class LightningWebClient(
         shouldOverrideLoading(view, url) || super.shouldOverrideUrlLoading(view, url)
 
     private fun shouldOverrideLoading(view: WebView, url: String): Boolean {
+
+        Log.d("BG::shouldOverrideLoad","Checking if url ${url} is blocked")
+
+        for (black_listed_url in block_list_urls) {
+            if (url?.contains(black_listed_url) == true) {
+                Log.d("BG::shouldOverrideLoad","Not opening blocked url!")
+                return@shouldOverrideLoading true
+            }
+        }
+
         // Check if configured proxy is available
         if (!proxyUtils.isProxyReady(activity)) {
             // User has been notified
